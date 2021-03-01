@@ -77,6 +77,7 @@ module sk6805_tb (
                 now = $realtime;
                 wait (!line);
                 high_time = $realtime - now;
+                now = $realtime;
                 if (high_time == 600)
                 begin
                     // one
@@ -94,7 +95,8 @@ module sk6805_tb (
             end
             current_data  = current_data + 1;
         end
-        wait(!line);
+        wait(ready && clock);
+        assert(($realtime - now) == 80190) else $fatal("did not reset");
         $finish;
     end
 endmodule

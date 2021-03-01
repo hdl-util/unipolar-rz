@@ -25,7 +25,7 @@ module unipolar_rz #(
     output logic ready
 );
 
-localparam int TIME_COUNTER_WIDTH = $clog2($unsigned(int'($unsigned(CLOCK_RATE) * (RESET_TIME + (ONE_LOW_TIME > ZERO_LOW_TIME ? ONE_LOW_TIME : ZERO_LOW_TIME)))));
+localparam int TIME_COUNTER_WIDTH = $clog2($unsigned(int'(1 + $unsigned(CLOCK_RATE) * (RESET_TIME + (ONE_LOW_TIME > ZERO_LOW_TIME ? ONE_LOW_TIME : ZERO_LOW_TIME)))));
 
 localparam bit [TIME_COUNTER_WIDTH-1:0] PERIOD = TIME_COUNTER_WIDTH'($unsigned(CLOCK_RATE) * PERIOD_TIME - 1);
 localparam bit [TIME_COUNTER_WIDTH-1:0] ZERO_LOW = TIME_COUNTER_WIDTH'($unsigned(CLOCK_RATE) * ZERO_LOW_TIME - 1);
@@ -84,7 +84,7 @@ begin
             begin
                 internal_data <= 1'bx;
                 state <= STATE_WIDTH'(0);
-                time_counter <= RESET + ((INVERT ? !internal_data[0] : internal_data[0]) ? ONE_LOW : ZERO_LOW);
+                time_counter <= RESET + ((INVERT ? !internal_data[0] : internal_data[0]) ? ONE_LOW : ZERO_LOW) + TIME_COUNTER_WIDTH'(1);
             end
         end
         else
