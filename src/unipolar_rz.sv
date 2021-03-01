@@ -84,7 +84,7 @@ begin
             begin
                 internal_data <= 1'bx;
                 state <= STATE_WIDTH'(0);
-                time_counter <= RESET + (INVERT ? !internal_data[0] : internal_data[0]) ? ONE_LOW : ZERO_LOW;
+                time_counter <= RESET + ((INVERT ? !internal_data[0] : internal_data[0]) ? ONE_LOW : ZERO_LOW);
             end
         end
         else
