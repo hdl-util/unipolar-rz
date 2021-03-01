@@ -32,9 +32,16 @@ module sk6805_tb (
     localparam int SHIFT_OUT_COUNT = 4;
     int shift_out_counter = SHIFT_OUT_COUNT;
 
+    localparam int UPDATE_COUNT = 10;
+    int update_counter = UPDATE_COUNT;
+
     always_ff @(posedge clock)
     begin
-        if (ready && shift_out_counter > 0)
+        if (update_counter == 0)
+        begin
+            enable <= 1'd0;
+        end
+        else if (ready && shift_out_counter > 0)
         begin
             if (shift_out_counter != SHIFT_OUT_COUNT)
                 data <= data + 1;
@@ -55,6 +62,8 @@ module sk6805_tb (
             enable <= 1'd0;
             assert (sk6805.state == 0) else $fatal("not in expected state: %d", sk6805.state);
             assert (sk6805.time_counter == 0) else $fatal("did not reset");
+            shift_out_counter <= SHIFT_OUT_COUNT;
+            update_counter <= update_counter - 1;
         end
         else
         begin
@@ -62,41 +71,48 @@ module sk6805_tb (
         end
     end
 
-    int i, j;
+    int i, j, k;
     realtime now, high_time, low_time;
     logic [DATA_WIDTH-1:0] current_data = INITIAL_DATA;
     initial
     begin
         $timeformat(-9, 2, "ns");
         wait (!line);
-        for (i = 0; i < SHIFT_OUT_COUNT; i++)
+        for (i = 0; i < UPDATE_COUNT; i++)
         begin
-            for (j = 0; j < DATA_WIDTH; j++)
+            for (j = 0; j < SHIFT_OUT_COUNT; j++)
             begin
-                wait (line);
-                now = $realtime;
-                wait (!line);
-                high_time = $realtime - now;
-                now = $realtime;
-                if (high_time == 600)
+                for (k = 0; k < DATA_WIDTH; k++)
                 begin
-                    // one
-                    assert (current_data[j]) else $fatal("Unexpected 1 for %h @ %d, %d", current_data, i, j);
+                    wait (line);
+                    now = $realtime;
+                    wait (!line);
+                    high_time = $realtime - now;
+                    now = $realtime;
+                    if (high_time == 600)
+                    begin
+                        // one
+                        assert (current_data[k]) else $fatal("Unexpected 1 for %h @ %d, %d, %d", current_data, i, j, k);
+                    end
+                    else if (high_time == 300)
+                    begin
+                        // zero
+                        assert (!current_data[k]) else $fatal("Unexpected 0 for %h @ %d, %d, %d", current_data, i, j, k);
+                    end
+                    else
+                    begin
+                        $fatal("unexpected tHIGH = %t", high_time);
+                    end
                 end
-                else if (high_time == 300)
+
+                if (j != SHIFT_OUT_COUNT - 1)
                 begin
-                    // zero
-                    assert (!current_data[j]) else $fatal("Unexpected 0 for %h @ %d, %d", current_data, i, j);
-                end
-                else
-                begin
-                    $fatal("unexpected tHIGH = %t", high_time);
+                    current_data = current_data + 1;
                 end
             end
-            current_data  = current_data + 1;
+            wait(ready && clock);
+            assert(($realtime - now) == 80190) else $fatal("did not reset");
         end
-        wait(ready && clock);
-        assert(($realtime - now) == 80190) else $fatal("did not reset");
         $finish;
     end
 endmodule

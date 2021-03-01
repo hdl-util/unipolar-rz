@@ -13,15 +13,12 @@ module unipolar_rz #(
     // in seconds
     parameter real ONE_HIGH_TIME,
     // in seconds
-    parameter real RESET_TIME,
-    // Conventionally 0 = GND and 1 = VCC.
-    // Maybe your application is different!
-    parameter bit INVERT = 0
+    parameter real RESET_TIME
 ) (
     input logic clock,
     input logic [DATA_WIDTH-1:0] data,
     input logic enable,
-    output logic line = INVERT,
+    output logic line = 1'd0,
     output logic ready
 );
 
@@ -62,14 +59,14 @@ begin
     // odd state, driving high part of bit
     else if (state[0])
     begin
-        line <= !INVERT;
+        line <= 1'd1;
         state <= state + 1'd1;
-        time_counter <= (INVERT ? !internal_data[0] : internal_data[0]) ? ONE_HIGH : ZERO_HIGH;
+        time_counter <= internal_data[0] ? ONE_HIGH : ZERO_HIGH;
     end
     // even state, driving low part of bit
     else if (!state[0])
     begin
-        line <= INVERT;
+        line <= 1'd0;
         if (state == STATE_WIDTH'(2 * DATA_WIDTH))
         begin
             // pipelining to go direct to transmitting next data
@@ -77,21 +74,21 @@ begin
             begin
                 internal_data <= data;
                 state <= STATE_WIDTH'(1);
-                time_counter <= (INVERT ? !internal_data[0] : internal_data[0]) ? ONE_LOW : ZERO_LOW;
+                time_counter <= internal_data[0] ? ONE_LOW : ZERO_LOW;
             end
             // otherwise need to settle state with a reset
             else
             begin
                 internal_data <= 1'bx;
                 state <= STATE_WIDTH'(0);
-                time_counter <= RESET + ((INVERT ? !internal_data[0] : internal_data[0]) ? ONE_LOW : ZERO_LOW) + TIME_COUNTER_WIDTH'(1);
+                time_counter <= RESET + (internal_data[0] ? ONE_LOW : ZERO_LOW) + TIME_COUNTER_WIDTH'(1);
             end
         end
         else
         begin
             internal_data <= internal_data >> 1;
             state <= state + 1'd1;
-            time_counter <= (INVERT ? !internal_data[0] : internal_data[0]) ? ONE_LOW : ZERO_LOW;
+            time_counter <= internal_data[0] ? ONE_LOW : ZERO_LOW;
         end
     end
 end
