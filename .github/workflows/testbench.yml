@@ -29,4 +29,4 @@ jobs:
       - name: Add ModelSim to PATH
         run: echo "$HOME/intelFPGA/20.1/modelsim_ase/bin" >> $GITHUB_PATH
       - name: SK6805 LED Testbench
-        run: cd $GITHUB_WORKSPACE/sim/top_tb/ && hdlmake fetch && hdlmake && make
+        run: cd $GITHUB_WORKSPACE/sim/sk6805_tb/ && hdlmake fetch && hdlmake && make
