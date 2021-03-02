@@ -48,7 +48,7 @@ module sk6805_tb (
             enable <= 1'd1;
             shift_out_counter <= shift_out_counter - 1;
             assert (shift_out_counter == 4 ? sk6805.state == 0 : sk6805.state == 48) else $fatal("not in expected state: %d, %d", shift_out_counter, sk6805.state);
-            assert (shift_out_counter == 4 ? sk6805.time_counter == 0 : sk6805.time_counter == 1) else $fatal("not about to drive final");
+            assert (shift_out_counter == 4 ? sk6805.time_counter == 0 : sk6805.time_counter == 1) else $fatal("not about to drive final: %d", sk6805.time_counter);
         end
         else if (ready && shift_out_counter == 0)
         begin
@@ -89,12 +89,12 @@ module sk6805_tb (
                     wait (!line);
                     high_time = $realtime - now;
                     now = $realtime;
-                    if (high_time == 600)
+                    if (high_time == 610)
                     begin
                         // one
                         assert (current_data[k]) else $fatal("Unexpected 1 for %h @ %d, %d, %d", current_data, i, j, k);
                     end
-                    else if (high_time == 300)
+                    else if (high_time == 310)
                     begin
                         // zero
                         assert (!current_data[k]) else $fatal("Unexpected 0 for %h @ %d, %d, %d", current_data, i, j, k);
@@ -111,7 +111,7 @@ module sk6805_tb (
                 end
             end
             wait(ready && clock);
-            assert(($realtime - now) == 80190) else $fatal("did not reset");
+            assert(($realtime - now) == 80210) else $fatal("did not reset: %t", ($realtime - now));
         end
         $finish;
     end
