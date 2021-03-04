@@ -8,4 +8,4 @@ The demo drives R, G and B separately but it appears as white to the naked eye:
 
 A 240 FPS slow-mo video shows the LEDs glimmering as they switch between the colors:
 
-![Video of lights f](https://ipfs.io/ipfs/QmP6uTKJFuTK9Q31m9iakBaQ6FncQFacuWv51JZ1vqfzrJ)
+![Video of lights glimmering](https://user-images.githubusercontent.com/11097096/109910250-b1be7900-7c75-11eb-8d15-d60745845bb7.mp4)
