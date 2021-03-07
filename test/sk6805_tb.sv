@@ -82,7 +82,7 @@ module sk6805_tb (
         begin
             for (j = 0; j < SHIFT_OUT_COUNT; j++)
             begin
-                for (k = 0; k < DATA_WIDTH; k++)
+                for (k = DATA_WIDTH - 1; k >= 0; k--)
                 begin
                     wait (line);
                     now = $realtime;
@@ -111,7 +111,7 @@ module sk6805_tb (
                 end
             end
             wait(ready && clock);
-            assert(($realtime - now) == 80210) else $fatal("did not reset: %t", ($realtime - now));
+            assert(($realtime - now) == 80810 || ($realtime - now) == 80210) else $fatal("did not reset: %t", ($realtime - now));
         end
         $finish;
     end

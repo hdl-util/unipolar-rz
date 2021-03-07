@@ -67,7 +67,7 @@ begin
     begin
         line <= 1'd1;
         state <= state + NEXT_STATE;
-        time_counter <= internal_data[0] ? ONE_HIGH : ZERO_HIGH;
+        time_counter <= internal_data[DATA_WIDTH-1] ? ONE_HIGH : ZERO_HIGH;
     end
     // even state, driving low part of bit
     else if (!state[0])
@@ -80,21 +80,21 @@ begin
             begin
                 internal_data <= data;
                 state <= STATE_WIDTH'(1);
-                time_counter <= internal_data[0] ? ONE_LOW : ZERO_LOW;
+                time_counter <= internal_data[DATA_WIDTH-1] ? ONE_LOW : ZERO_LOW;
             end
             // otherwise need to settle state with a reset
             else
             begin
                 internal_data <= 1'bx;
                 state <= NOT_SENDING;
-                time_counter <= RESET + (internal_data[0] ? ONE_LOW : ZERO_LOW) + ONE;
+                time_counter <= RESET + (internal_data[DATA_WIDTH-1] ? ONE_LOW : ZERO_LOW) + ONE;
             end
         end
         else
         begin
-            internal_data <= internal_data >> 1;
+            internal_data <= internal_data << 1;
             state <= state + NEXT_STATE;
-            time_counter <= internal_data[0] ? ONE_LOW : ZERO_LOW;
+            time_counter <= internal_data[DATA_WIDTH-1] ? ONE_LOW : ZERO_LOW;
         end
     end
 end
